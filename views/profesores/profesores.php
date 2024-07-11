@@ -86,8 +86,8 @@
                                     <input type="text" name="apellidoProfesor" id="apellidoProfesor" class="form-control" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="especialidadProfesor">Especialidad</label>
-                                    <input type="text" name="especialidadProfesor" id="especialidadProfesor" class="form-control" required>
+                                    <label for="especialidad">Especialidad</label>
+                                    <input type="text" name="especialidad" id="especialidad" class="form-control" required>
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -120,8 +120,8 @@
                                     <input type="text" name="apellidoEditarProfesor" id="apellidoEditarProfesor" class="form-control" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="especialidadEditarProfesor">Especialidad</label>
-                                    <input type="text" name="especialidadEditarProfesor" id="especialidadEditarProfesor" class="form-control" required>
+                                    <label for="especialidadEditar">Especialidad</label>
+                                    <input type="text" name="especialidadEditar" id="especialidadEditar" class="form-control" required>
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -140,6 +140,11 @@
             <script src="./profesores.js"></script>
             <script>
                 $(document).ready(function() {
+                    // Inicializar Flatpickr
+                    flatpickr(".custom-flatpickr", {
+                        dateFormat: "Y-m-d"
+                    });
+
                     cargarProfesores();
 
                     function cargarProfesores() {
@@ -184,7 +189,7 @@
                         event.preventDefault();
                         var nombre = $('#nombreProfesor').val();
                         var apellido = $('#apellidoProfesor').val();
-                        var especialidad = $('#especialidadProfesor').val();
+                        var especialidad = $('#especialidad').val();
 
                         $.ajax({
                             url: 'http://localhost/Proyectofinal/controllers/Profesores.controller.php?op=insertar',
@@ -196,7 +201,7 @@
                             },
                             dataType: 'json',
                             success: function(response) {
-                                if (response) {
+                                if (response === "ok") {
                                     $('#modalProfesor').modal('hide');
                                     cargarProfesores();
                                     $('#formNuevoProfesor')[0].reset();
@@ -223,7 +228,7 @@
                                     $('#idProfesor').val(response.id_profesor);
                                     $('#nombreEditarProfesor').val(response.nombre);
                                     $('#apellidoEditarProfesor').val(response.apellido);
-                                    $('#especialidadEditarProfesor').val(response.especialidad);
+                                    $('#especialidadEditar').val(response.especialidad);
 
                                     $('#modalEditarProfesor').modal('show');
                                 } else {
@@ -243,7 +248,7 @@
                         var idProfesor = $('#idProfesor').val();
                         var nombre = $('#nombreEditarProfesor').val();
                         var apellido = $('#apellidoEditarProfesor').val();
-                        var especialidad = $('#especialidadEditarProfesor').val();
+                        var especialidad = $('#especialidadEditar').val();
 
                         $.ajax({
                             url: 'http://localhost/Proyectofinal/controllers/Profesores.controller.php?op=actualizar',
@@ -319,7 +324,7 @@
                 });
             </script>
         </div>
-       
+    
     </div>
 </body>
 </html>

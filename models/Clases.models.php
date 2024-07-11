@@ -1,36 +1,131 @@
 <?php
-require_once("../config/conexion.php");
+require_once('../config/conexion.php');
 
-class Clases {
-    private $conn;
-
-    public function __construct() {
-        $this->conn = Conexion::ConectarDB();
-    }
-
+class Clases_Model {
     public function todos() {
-        $query = "SELECT * FROM Clases";
-        return mysqli_query($this->conn, $query);
+        try {
+            $con = new Clase_Conectar();
+            $conexion = $con->Procedimiento_Conectar();
+            
+            $consulta = "SELECT * FROM clases";
+            $resultado = mysqli_query($conexion, $consulta);
+            
+            if ($resultado === false) {
+                throw new Exception(mysqli_error($conexion));
+            }
+            
+            $clases = array();
+            while ($fila = mysqli_fetch_assoc($resultado)) {
+                $clases[] = $fila;
+            }
+            
+            return $clases;
+        } catch (Exception $e) {
+            error_log("Error en la consulta todos() de clases: " . $e->getMessage());
+            return false;
+        } finally {
+            if (isset($conexion)) {
+                $conexion->close();
+            }
+        }
     }
 
-    public function uno($id_clase) {
-        $query = "SELECT * FROM Clases WHERE id_clase = $id_clase";
-        return mysqli_query($this->conn, $query);
+    public function insertar($id_asignatura, $id_profesor, $horario) {
+        try {
+            $con = new Clase_Conectar();
+            $conexion = $con->Procedimiento_Conectar();
+            
+            $consulta = "INSERT INTO clases (id_asignatura, id_profesor, horario) VALUES (?, ?, ?)";
+            $stmt = $conexion->prepare($consulta);
+            $stmt->bind_param("iis", $id_asignatura, $id_profesor, $horario);
+            
+            if ($stmt->execute()) {
+                return "ok";
+            } else {
+                throw new Exception($stmt->error);
+            }
+        } catch (Exception $e) {
+            error_log("Error al insertar clase: " . $e->getMessage());
+            return false;
+        } finally {
+            if (isset($conexion)) {
+                $conexion->close();
+            }
+        }
     }
 
-    public function Insertar($id_asignatura, $id_profesor, $horario) {
-        $query = "INSERT INTO Clases (id_asignatura, id_profesor, horario) VALUES ($id_asignatura, $id_profesor, '$horario')";
-        return mysqli_query($this->conn, $query);
+    public function actualizar($id_clase, $id_asignatura, $id_profesor, $horario) {
+        try {
+            $con = new Clase_Conectar();
+            $conexion = $con->Procedimiento_Conectar();
+            
+            $consulta = "UPDATE clases SET id_asignatura=?, id_profesor=?, horario=? WHERE id_clase=?";
+            $stmt = $conexion->prepare($consulta);
+            $stmt->bind_param("iisi", $id_asignatura, $id_profesor, $horario, $id_clase);
+            
+            if ($stmt->execute()) {
+                return "ok";
+            } else {
+                throw new Exception($stmt->error);
+            }
+        } catch (Exception $e) {
+            error_log("Error al actualizar clase: " . $e->getMessage());
+            return false;
+        } finally {
+            if (isset($conexion)) {
+                $conexion->close();
+            }
+        }
     }
 
-    public function Actualizar($id_clase, $id_asignatura, $id_profesor, $horario) {
-        $query = "UPDATE Clases SET id_asignatura = $id_asignatura, id_profesor = $id_profesor, horario = '$horario' WHERE id_clase = $id_clase";
-        return mysqli_query($this->conn, $query);
+    public function eliminar($id_clase) {
+        try {
+            $con = new Clase_Conectar();
+            $conexion = $con->Procedimiento_Conectar();
+            
+            $consulta = "DELETE FROM clases WHERE id_clase=?";
+            $stmt = $conexion->prepare($consulta);
+            $stmt->bind_param("i", $id_clase);
+
+            if ($stmt->execute()) {
+                return "ok";
+            } else {
+                throw new Exception($stmt->error);
+            }
+        } catch (Exception $e) {
+            error_log("Error al eliminar clase: " . $e->getMessage());
+            return false;
+        } finally {
+            if (isset($conexion)) {
+                $conexion->close();
+            }
+        }
     }
 
-    public function Eliminar($id_clase) {
-        $query = "DELETE FROM Clases WHERE id_clase = $id_clase";
-        return mysqli_query($this->conn, $query);
+    public function obtenerPorId($id_clase) {
+        try {
+            $con = new Clase_Conectar();
+            $conexion = $con->Procedimiento_Conectar();
+            
+            $consulta = "SELECT * FROM clases WHERE id_clase=?";
+            $stmt = $conexion->prepare($consulta);
+            $stmt->bind_param("i", $id_clase);
+            
+            if ($stmt->execute()) {
+                $resultado = $stmt->get_result();
+                $clase = $resultado->fetch_assoc();
+                return $clase;
+            } else {
+                throw new Exception($stmt->error);
+            }
+        } catch (Exception $e) {
+            error_log("Error al obtener clase por ID: " . $e->getMessage());
+            return false;
+        } finally {
+            if (isset($conexion)) {
+                $conexion->close();
+            }
+        }
     }
 }
 ?>

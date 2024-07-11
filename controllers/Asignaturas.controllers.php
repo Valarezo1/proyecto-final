@@ -1,53 +1,83 @@
 <?php
-require_once("../models/Asignaturas.models.php");
-error_reporting(0);
+require_once('../models/Asignaturas.models.php'); // Assuming this file defines Clase_Asignatura
+$asignatura = new Clase_Asignaturas(); // Instantiate your Asignatura model
 
-$Asignaturas = new Asignaturas;
-switch ($_GET["op"]) {
-    case 'todos':
-        $data = array();
-        $datos = $Asignaturas->todos();
-        while ($row = mysqli_fetch_assoc($datos)) {
-            $sub_array = array();
-            $sub_array[] = $row["id_asignatura"];
-            $sub_array[] = $row["nombre_asignatura"];
-            $sub_array[] = $row["creditos"];
-            $sub_array[] = '<button type="button" onClick="editar('.$row["id_asignatura"].')" class="btn btn-outline-success">Editar</button>  <button type="button" onClick="eliminar('.$row["id_asignatura"].')" class="btn btn-outline-danger">Eliminar</button>';
-            $data[] = $sub_array;
-        }
-        $results = array(
-            "sEcho" => 1,
-            "iTotalRecords" => count($data),
-            "iTotalDisplayRecords" => count($data),
-            "aaData" => $data
-        );
-        echo json_encode($results);
-        break;
-
-    case 'uno':
-        $id_asignatura = $_POST["id_asignatura"];
-        $datos = $Asignaturas->uno($id_asignatura);
-        echo json_encode($datos);
-        break;
-
-    case 'insertar':
-        $nombre_asignatura = $_POST["nombre_asignatura"];
-        $creditos = $_POST["creditos"];
-        $datos = $Asignaturas->Insertar($nombre_asignatura, $creditos);
-        echo json_encode($datos);
-        break;
-
-    case 'actualizar':
-        $id_asignatura = $_POST["id_asignatura"];
-        $nombre_asignatura = $_POST["nombre_asignatura"];
-        $creditos = $_POST["creditos"];
-        $datos = $Asignaturas->Actualizar($id_asignatura, $nombre_asignatura, $creditos);
-        echo json_encode($datos);
-        break;
-
-    case 'eliminar':
-        $id_asignatura = $_POST["id_asignatura"];
-        $datos = $Asignaturas->Eliminar($id_asignatura);
-        echo json_encode($datos);
-        break;
+if (isset($_GET['op'])) {
+    switch ($_GET['op']) {
+        case "todas":
+            $datos = $asignatura->todas();
+            if ($datos !== false) {
+                echo json_encode($datos);
+            } else {
+                echo json_encode("No se encontraron asignaturas.");
+            }
+            break;
+        case "insertar":
+            if (isset($_POST["nombre_asignatura"], $_POST["creditos"])) {
+                $nombre_asignatura = $_POST["nombre_asignatura"];
+                $creditos = $_POST["creditos"];
+                $resultado = $asignatura->insertar($nombre_asignatura, $creditos);
+                if ($resultado === "ok") {
+                    echo json_encode("ok");
+                } else {
+                    echo json_encode("Error al insertar la asignatura: " . $resultado);
+                }
+            } else {
+                echo json_encode("Faltan parámetros para insertar la asignatura.");
+            }
+            break;
+        case "actualizar":
+            if (isset($_POST["id_asignatura"], $_POST["nombre_asignatura"], $_POST["creditos"])) {
+                $id_asignatura = $_POST["id_asignatura"];
+                $nombre_asignatura = $_POST["nombre_asignatura"];
+                $creditos = $_POST["creditos"];
+                $resultado = $asignatura->actualizar($id_asignatura, $nombre_asignatura, $creditos);
+                if ($resultado === "ok") {
+                    // Obtener los datos actualizados de la asignatura
+                    $asignaturaActualizado = $asignatura->obtenerPorId($id_asignatura);
+                    if ($asignaturaActualizado) {
+                        echo json_encode($asignaturaActualizado);
+                    } else {
+                        echo json_encode("Error al obtener la asignatura actualizada.");
+                    }
+                } else {
+                    echo json_encode("Error al actualizar la asignatura: " . $resultado);
+                }
+            } else {
+                echo json_encode("Faltan parámetros para actualizar la asignatura.");
+            }
+            break;
+        case "eliminar":
+            if (isset($_POST["id_asignatura"])) {
+                $id_asignatura = $_POST["id_asignatura"];
+                $resultado = $asignatura->eliminar($id_asignatura);
+                if ($resultado === "ok") {
+                    echo json_encode("ok");
+                } else {
+                    echo json_encode("Error al eliminar la asignatura: " . $resultado);
+                }
+            } else {
+                echo json_encode("Falta el parámetro ID para eliminar la asignatura.");
+            }
+            break;
+        case "detalle":
+            if (isset($_GET["id_asignatura"])) {
+                $id_asignatura = $_GET["id_asignatura"];
+                $asignaturaDetalle = $asignatura->obtenerPorId($id_asignatura);
+                if ($asignaturaDetalle) {
+                    echo json_encode($asignaturaDetalle);
+                } else {
+                    echo json_encode("No se encontró la asignatura.");
+                }
+            } else {
+                echo json_encode("Falta el parámetro ID para obtener el detalle de la asignatura.");
+            }
+            break;
+        default:
+            echo json_encode("Operación no válida.");
+            break;
+    }
+} else {
+    echo json_encode("No se especificó la operación.");
 }
+?>

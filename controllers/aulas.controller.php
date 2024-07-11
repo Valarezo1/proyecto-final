@@ -1,54 +1,83 @@
-phpCopy<?php
-require_once("../config/cors.php");
-require_once("../models/Aulas.models.php");
-error_reporting(0);
+<?php
+require_once('../models/Aulas.models.php'); // Asumiendo que este archivo define Aula_Model
+$aula = new Clase_Aula(); // Instancia del modelo de Aula
 
-$Aulas = new Aulas;
-switch ($_GET["op"]) {
-    case 'todos':
-        $data = array();
-        $datos = $Aulas->todos();
-        while ($row = mysqli_fetch_assoc($datos)) {
-            $sub_array = array();
-            $sub_array[] = $row["id_aula"];
-            $sub_array[] = $row["nombre_aula"];
-            $sub_array[] = $row["capacidad"];
-            $sub_array[] = '<button type="button" onClick="editar('.$row["id_aula"].')" class="btn btn-outline-success">Editar</button>  <button type="button" onClick="eliminar('.$row["id_aula"].')" class="btn btn-outline-danger">Eliminar</button>';
-            $data[] = $sub_array;
-        }
-        $results = array(
-            "sEcho" => 1,
-            "iTotalRecords" => count($data),
-            "iTotalDisplayRecords" => count($data),
-            "aaData" => $data
-        );
-        echo json_encode($results);
-        break;
-
-    case 'uno':
-        $id_aula = $_POST["id_aula"];
-        $datos = $Aulas->uno($id_aula);
-        echo json_encode($datos);
-        break;
-
-    case 'insertar':
-        $nombre_aula = $_POST["nombre_aula"];
-        $capacidad = $_POST["capacidad"];
-        $datos = $Aulas->Insertar($nombre_aula, $capacidad);
-        echo json_encode($datos);
-        break;
-
-    case 'actualizar':
-        $id_aula = $_POST["id_aula"];
-        $nombre_aula = $_POST["nombre_aula"];
-        $capacidad = $_POST["capacidad"];
-        $datos = $Aulas->Actualizar($id_aula, $nombre_aula, $capacidad);
-        echo json_encode($datos);
-        break;
-
-    case 'eliminar':
-        $id_aula = $_POST["id_aula"];
-        $datos = $Aulas->Eliminar($id_aula);
-        echo json_encode($datos);
-        break;
+if (isset($_GET['op'])) {
+    switch ($_GET['op']) {
+        case "todos":
+            $datos = $aula->todos();
+            if ($datos !== false) {
+                echo json_encode($datos);
+            } else {
+                echo json_encode("No se encontraron aulas.");
+            }
+            break;
+        case "insertar":
+            if (isset($_POST["nombre_aula"], $_POST["capacidad"])) {
+                $nombre_aula = $_POST["nombre_aula"];
+                $capacidad = $_POST["capacidad"];
+                $resultado = $aula->insertar($nombre_aula, $capacidad);
+                if ($resultado === "ok") {
+                    echo json_encode("ok");
+                } else {
+                    echo json_encode("Error al insertar el aula: " . $resultado);
+                }
+            } else {
+                echo json_encode("Faltan parámetros para insertar el aula.");
+            }
+            break;
+        case "actualizar":
+            if (isset($_POST["id_aula"], $_POST["nombre_aula"], $_POST["capacidad"])) {
+                $id_aula = $_POST["id_aula"];
+                $nombre_aula = $_POST["nombre_aula"];
+                $capacidad = $_POST["capacidad"];
+                $resultado = $aula->actualizar($id_aula, $nombre_aula, $capacidad);
+                if ($resultado === "ok") {
+                    // Obtener los datos actualizados del aula
+                    $aulaActualizada = $aula->obtenerPorId($id_aula);
+                    if ($aulaActualizada) {
+                        echo json_encode($aulaActualizada);
+                    } else {
+                        echo json_encode("Error al obtener el aula actualizada.");
+                    }
+                } else {
+                    echo json_encode("Error al actualizar el aula: " . $resultado);
+                }
+            } else {
+                echo json_encode("Faltan parámetros para actualizar el aula.");
+            }
+            break;
+        case "eliminar":
+            if (isset($_POST["id_aula"])) {
+                $id_aula = $_POST["id_aula"];
+                $resultado = $aula->eliminar($id_aula);
+                if ($resultado === "ok") {
+                    echo json_encode("ok");
+                } else {
+                    echo json_encode("Error al eliminar el aula: " . $resultado);
+                }
+            } else {
+                echo json_encode("Falta el parámetro ID para eliminar el aula.");
+            }
+            break;
+        case "detalle":
+            if (isset($_GET["id_aula"])) {
+                $id_aula = $_GET["id_aula"];
+                $aulaDetalle = $aula->obtenerPorId($id_aula);
+                if ($aulaDetalle) {
+                    echo json_encode($aulaDetalle);
+                } else {
+                    echo json_encode("No se encontró el aula.");
+                }
+            } else {
+                echo json_encode("Falta el parámetro ID para obtener el detalle del aula.");
+            }
+            break;
+        default:
+            echo json_encode("Operación no válida.");
+            break;
+    }
+} else {
+    echo json_encode("No se especificó la operación.");
 }
+?>

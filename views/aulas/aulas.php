@@ -135,7 +135,7 @@
 
                     function cargarAulas() {
                         $.ajax({
-                            url: 'http://localhost/Trabajo/proyectofinal/controllers/aulas.controllers.php?op=todos',
+                            url: 'http://localhost/Proyectofinal/controllers/aulas.controller.php?op=todos',
                             type: 'GET',
                             dataType: 'json',
                             success: function(response) {
@@ -176,10 +176,10 @@
                         var capacidad = $('#capacidadAula').val();
 
                         $.ajax({
-                            url: 'http://localhost/Trabajo/proyectofinal/controllers/aulas.controllers.php?op=insertar',
+                            url: 'http://localhost/Proyectofinal/controllers/aulas.controller.php?op=insertar',
                             type: 'POST',
                             data: {
-                                nombre: nombre,
+                                nombre_aula: nombre,
                                 capacidad: capacidad
                             },
                             dataType: 'json',
@@ -203,7 +203,7 @@
                         var idAula = $(this).data('id');
 
                         $.ajax({
-                            url: 'http://localhost/Trabajo/proyectofinal/controllers/aulas.controllers.php?op=detalle&id=' + idAula,
+                            url: 'http://localhost/Proyectofinal/controllers/aulas.controller.php?op=detalle&id_aula=' + idAula,
                             type: 'GET',
                             dataType: 'json',
                             success: function(response) {
@@ -211,30 +211,32 @@
                                     $('#idAula').val(response.id_aula);
                                     $('#nombreEditarAula').val(response.nombre_aula);
                                     $('#capacidadEditarAula').val(response.capacidad);
+
                                     $('#modalEditarAula').modal('show');
                                 } else {
-                                    alert('No se encontró el aula.');
+                                    alert('No se pudo obtener los detalles del aula.');
                                 }
                             },
                             error: function(xhr, status, error) {
                                 console.error(error);
-                                alert('Error al obtener datos del aula.');
+                                alert('Error al obtener detalles del aula.');
                             }
                         });
                     });
 
                     $('#formEditarAula').submit(function(event) {
                         event.preventDefault();
+                        
                         var idAula = $('#idAula').val();
                         var nombre = $('#nombreEditarAula').val();
                         var capacidad = $('#capacidadEditarAula').val();
 
                         $.ajax({
-                            url: 'http://localhost/Trabajo/proyectofinal/controllers/aulas.controllers.php?op=actualizar',
+                            url: 'http://localhost/Proyectofinal/controllers/aulas.controller.php?op=actualizar',
                             type: 'POST',
                             data: {
-                                id: idAula,
-                                nombre: nombre,
+                                id_aula: idAula,
+                                nombre_aula: nombre,
                                 capacidad: capacidad
                             },
                             dataType: 'json',
@@ -242,6 +244,7 @@
                                 if (response === "ok") {
                                     $('#modalEditarAula').modal('hide');
                                     cargarAulas();
+                                    $('#formEditarAula')[0].reset();
                                 } else {
                                     alert('Error al actualizar aula: ' + response);
                                 }
@@ -258,20 +261,19 @@
 
                         Swal.fire({
                             title: '¿Estás seguro?',
-                            text: 'El aula será eliminada permanentemente.',
+                            text: "¡No podrás revertir esto!",
                             icon: 'warning',
                             showCancelButton: true,
                             confirmButtonColor: '#3085d6',
                             cancelButtonColor: '#d33',
-                            confirmButtonText: 'Sí, eliminar',
-                            cancelButtonText: 'Cancelar'
+                            confirmButtonText: 'Sí, eliminarlo!'
                         }).then((result) => {
                             if (result.isConfirmed) {
                                 $.ajax({
-                                    url: 'http://localhost/Trabajo/proyectofinal/controllers/aulas.controllers.php?op=eliminar',
+                                    url: 'http://localhost/Proyectofinal/controllers/aulas.controller.php?op=eliminar',
                                     type: 'POST',
                                     data: {
-                                        id: idAula
+                                        id_aula: idAula
                                     },
                                     dataType: 'json',
                                     success: function(response) {
@@ -283,7 +285,11 @@
                                                 'success'
                                             );
                                         } else {
-                                            alert('Error al eliminar aula: ' + response);
+                                            Swal.fire(
+                                                'Error!',
+                                                'No se pudo eliminar el aula.',
+                                                'error'
+                                            );
                                         }
                                     },
                                     error: function(xhr, status, error) {
@@ -298,7 +304,7 @@
                 });
             </script>
         </div>
-        
+    
     </div>
 </body>
 </html>

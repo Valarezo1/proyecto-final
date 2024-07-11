@@ -42,7 +42,7 @@
         const myArray = path.split(".");
         let word = myArray[0];
         if (path == '') {
-            target = $('nav div a[href="../aulas/"]');
+            target = $('nav div a[href="../alumnos/"]');
         } else {
             target = $('nav div a[href="../' + word + '/' + path + '"]');
         }

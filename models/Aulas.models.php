@@ -1,36 +1,139 @@
 <?php
-require_once("../config/conexion.php");
 
-class Aulas {
-    private $conn;
+require_once('../config/conexion.php');
 
-    public function __construct() {
-        $this->conn = Conexion::ConectarDB();
+class Clase_Aula
+{
+    public function todos()
+    {
+        try {
+            $con = new Clase_Conectar();
+            $conexion = $con->Procedimiento_Conectar();
+            
+            $consulta = "SELECT * FROM aulas";
+            $resultado = mysqli_query($conexion, $consulta);
+            
+            if ($resultado === false) {
+                throw new Exception(mysqli_error($conexion));
+            }
+            
+            $aulas = array();
+            while ($fila = mysqli_fetch_assoc($resultado)) {
+                $aulas[] = $fila;
+            }
+            
+            return $aulas;
+        } catch (Exception $e) {
+            error_log("Error en la consulta todos() de aulas: " . $e->getMessage());
+            return false;
+        } finally {
+            if (isset($conexion)) {
+                $conexion->close();
+            }
+        }
     }
 
-    public function todos() {
-        $query = "SELECT * FROM Aulas";
-        return mysqli_query($this->conn, $query);
+    public function insertar($nombre_aula, $capacidad)
+    {
+        try {
+            $con = new Clase_Conectar();
+            $conexion = $con->Procedimiento_Conectar();
+            
+            $consulta = "INSERT INTO aulas (nombre_aula, capacidad) VALUES (?, ?)";
+            $stmt = $conexion->prepare($consulta);
+            $stmt->bind_param("si", $nombre_aula, $capacidad);
+            
+            if ($stmt->execute()) {
+                return "ok";
+            } else {
+                throw new Exception($stmt->error);
+            }
+        } catch (Exception $e) {
+            error_log("Error al insertar aula: " . $e->getMessage());
+            return false;
+        } finally {
+            if (isset($conexion)) {
+                $conexion->close();
+            }
+        }
     }
 
-    public function uno($id_aula) {
-        $query = "SELECT * FROM Aulas WHERE id_aula = $id_aula";
-        return mysqli_query($this->conn, $query);
+    public function actualizar($id, $nombre_aula, $capacidad)
+    {
+        try {
+            $con = new Clase_Conectar();
+            $conexion = $con->Procedimiento_Conectar();
+            
+            $consulta = "UPDATE aulas SET nombre_aula=?, capacidad=? WHERE id_aula=?";
+            $stmt = $conexion->prepare($consulta);
+            $stmt->bind_param("sii", $nombre_aula, $capacidad, $id);
+            
+            if ($stmt->execute()) {
+                return "ok";
+            } else {
+                throw new Exception($stmt->error);
+            }
+        } catch (Exception $e) {
+            error_log("Error al actualizar aula: " . $e->getMessage());
+            return false;
+        } finally {
+            if (isset($conexion)) {
+                $conexion->close();
+            }
+        }
     }
 
-    public function Insertar($nombre_aula, $capacidad) {
-        $query = "INSERT INTO Aulas (nombre_aula, capacidad) VALUES ('$nombre_aula', $capacidad)";
-        return mysqli_query($this->conn, $query);
+    public function eliminar($id)
+    {
+        try {
+            $con = new Clase_Conectar();
+            $conexion = $con->Procedimiento_Conectar();
+            
+            $consulta = "DELETE FROM aulas WHERE id_aula=?";
+            $stmt = $conexion->prepare($consulta);
+            $stmt->bind_param("i", $id);
+
+            if ($stmt->execute()) {
+                return "ok";
+            } else {
+                throw new Exception($stmt->error);
+            }
+        } catch (Exception $e) {
+            error_log("Error al eliminar aula: " . $e->getMessage());
+            return false;
+        } finally {
+            if (isset($conexion)) {
+                $conexion->close();
+            }
+        }
     }
 
-    public function Actualizar($id_aula, $nombre_aula, $capacidad) {
-        $query = "UPDATE Aulas SET nombre_aula = '$nombre_aula', capacidad = $capacidad WHERE id_aula = $id_aula";
-        return mysqli_query($this->conn, $query);
-    }
-
-    public function Eliminar($id_aula) {
-        $query = "DELETE FROM Aulas WHERE id_aula = $id_aula";
-        return mysqli_query($this->conn, $query);
+    public function obtenerPorId($id)
+    {
+        try {
+            $con = new Clase_Conectar();
+            $conexion = $con->Procedimiento_Conectar();
+            
+            $consulta = "SELECT * FROM aulas WHERE id_aula=?";
+            $stmt = $conexion->prepare($consulta);
+            $stmt->bind_param("i", $id);
+            
+            if ($stmt->execute()) {
+                $resultado = $stmt->get_result();
+                $aula = $resultado->fetch_assoc();
+                return $aula;
+            } else {
+                throw new Exception($stmt->error);
+            }
+        } catch (Exception $e) {
+            error_log("Error al obtener aula por ID: " . $e->getMessage());
+            return false;
+        } finally {
+            if (isset($conexion)) {
+                $conexion->close();
+            }
+        }
     }
 }
+
 ?>

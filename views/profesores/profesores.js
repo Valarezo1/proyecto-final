@@ -12,7 +12,7 @@ var cargaTabla = () => {
   var html = "";
 
   // Llamada AJAX para obtener la lista de profesores desde el backend
-  $.get("http://localhost/Proyectofinal/controllers/Profesores.controller.php", (listaProfesores) => {
+  $.get("http://localhost/Proyectofinal/controllers/profesores.controllers.php", (listaProfesores) => {
     $.each(listaProfesores, (indice, unProfesor) => {
       html += `
             <tr>
@@ -44,9 +44,9 @@ var guardaryeditar = (e) => {
   var id_profesor = $("#id_profesor").val();
   var ruta = "";
   if (id_profesor == 0) {
-    ruta = "http://localhost/Proyectofinal/controllers/Profesores.controller.php";
+    ruta = "http://localhost/Trabajo/proyectofinal/controllers/profesores.controllers.php";
   } else {
-    ruta = `http://localhost/Proyectofinal/controllers/Profesores.controller.php?id_profesor=${id_profesor}&op=actualizar`;
+    ruta = `http://localhost/Trabajo/proyectofinal/controllers/profesores.controllers.php?id_profesor=${id_profesor}&op=actualizar`;
   }
 
   // AJAX para enviar los datos al backend
@@ -71,7 +71,7 @@ var guardaryeditar = (e) => {
 // Función para cargar datos de un profesor específico para edición
 var editar = async (id_profesor) => {
   await cargarDatosEspecificos(); // Si necesitas cargar otros datos específicos para la edición
-  $.get(`http://localhost/Proyectofinal/controllers/Profesores.controller.php?id_profesor=${id_profesor}`, (profesor) => {
+  $.get(`http://localhost/Trabajo/proyectofinal/controllers/profesores.controllers.php?id_profesor=${id_profesor}`, (profesor) => {
     console.log(profesor);
     $("#nombre").val(profesor.nombre);
     $("#apellido").val(profesor.apellido);
@@ -96,7 +96,7 @@ var eliminar = (id_profesor) => {
   }).then((result) => {
     if (result.isConfirmed) {
       $.ajax({
-        url: `http://localhost/Proyectofinal/controllers/Profesores.controller.php?id_profesor=${id_profesor}`,
+        url: `http://localhost/Trabajo/proyectofinal/controllers/profesores.controllers.php?id_profesor=${id_profesor}`,
         type: "DELETE",
         success: function (resultado) {
           if (resultado) {

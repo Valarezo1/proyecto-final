@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <?php require_once('../html/head3.php'); ?>
+    <?php require_once('../html/head4.php'); ?>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="../public/lib/calendar/lib/main.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -54,8 +54,8 @@
                     <thead class="table-light">
                         <tr>
                             <th>#</th>
-                            <th>Nombre</th>
-                            <th>Créditos</th> <!-- Cambio de "Descripción" a "Créditos" -->
+                            <th>Nombre de Asignatura</th>
+                            <th>Créditos</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -77,12 +77,12 @@
                         <form id="formNuevaAsignatura">
                             <div class="modal-body">
                                 <div class="form-group">
-                                    <label for="nombreAsignatura">Nombre</label>
+                                    <label for="nombreAsignatura">Nombre de Asignatura</label>
                                     <input type="text" name="nombreAsignatura" id="nombreAsignatura" class="form-control" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="creditosAsignatura">Créditos</label> <!-- Cambio de "Descripción" a "Créditos" -->
-                                    <input type="number" name="creditosAsignatura" id="creditosAsignatura" class="form-control" required>
+                                    <label for="creditos">Créditos</label>
+                                    <input type="number" name="creditos" id="creditos" class="form-control hide-arrows" required>
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -107,12 +107,12 @@
                             <div class="modal-body">
                                 <input type="hidden" name="idAsignatura" id="idAsignatura">
                                 <div class="form-group">
-                                    <label for="nombreEditarAsignatura">Nombre</label>
+                                    <label for="nombreEditarAsignatura">Nombre de Asignatura</label>
                                     <input type="text" name="nombreEditarAsignatura" id="nombreEditarAsignatura" class="form-control" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="creditosEditarAsignatura">Créditos</label> <!-- Cambio de "Descripción" a "Créditos" -->
-                                    <input type="number" name="creditosEditarAsignatura" id="creditosEditarAsignatura" class="form-control" required>
+                                    <label for="creditosEditar">Créditos</label>
+                                    <input type="number" name="creditosEditar" id="creditosEditar" class="form-control hide-arrows" required>
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -126,7 +126,7 @@
             <!-- Fin Modal Edición de Asignatura -->
 
             <!-- JavaScript Libraries -->
-            <?php require_once('../html/scripts3.php'); ?>
+            <?php require_once('../html/scripts4.php'); ?>
             <!-- Aquí deberías incluir el archivo "asignaturas.js" -->
             <script src="./asignaturas.js"></script>
             <script>
@@ -135,7 +135,7 @@
 
                     function cargarAsignaturas() {
                         $.ajax({
-                            url: 'http://localhost/Proyectofinal/controllers/Asignaturas.controllers.php?op=todos',
+                            url: 'http://localhost/Proyectofinal/controllers/Asignaturas.controllers.php?op=todas',
                             type: 'GET',
                             dataType: 'json',
                             success: function(response) {
@@ -159,8 +159,8 @@
                                 <tr>
                                     <td>${index + 1}</td>
                                     <td>${asignatura.nombre_asignatura}</td>
-                                    <td>${asignatura.creditos}</td> <!-- Cambio de "descripcion" a "creditos" -->
-                                    <td> 
+                                    <td>${asignatura.creditos}</td>
+                                    <td>
                                         <button class="btn btn-primary btn-editar-asignatura" data-id="${asignatura.id_asignatura}">Editar</button>
                                         <button class="btn btn-danger btn-eliminar-asignatura" data-id="${asignatura.id_asignatura}">Eliminar</button>
                                     </td>
@@ -172,14 +172,14 @@
 
                     $('#formNuevaAsignatura').submit(function(event) {
                         event.preventDefault();
-                        var nombre = $('#nombreAsignatura').val();
-                        var creditos = $('#creditosAsignatura').val();
+                        var nombreAsignatura = $('#nombreAsignatura').val();
+                        var creditos = $('#creditos').val();
 
                         $.ajax({
-                            url: 'http://localhost/Trabajo/proyectofinal/controllers/Asignaturas.controllers.php?op=insertar',
+                            url: 'http://localhost/Proyectofinal/controllers/Asignaturas.controllers.php?op=insertar',
                             type: 'POST',
                             data: {
-                                nombre: nombre,
+                                nombre_asignatura: nombreAsignatura,
                                 creditos: creditos
                             },
                             dataType: 'json',
@@ -203,45 +203,48 @@
                         var idAsignatura = $(this).data('id');
 
                         $.ajax({
-                            url: 'http://localhost/Trabajo/proyectofinal/controllers/Asignaturas.controllers.php?op=detalle&id=' + idAsignatura,
+                            url: 'http://localhost/Proyectofinal/controllers/Asignaturas.controllers.php?op=detalle&id_asignatura=' + idAsignatura,
                             type: 'GET',
                             dataType: 'json',
                             success: function(response) {
                                 if (response) {
                                     $('#idAsignatura').val(response.id_asignatura);
                                     $('#nombreEditarAsignatura').val(response.nombre_asignatura);
-                                    $('#creditosEditarAsignatura').val(response.creditos);
+                                    $('#creditosEditar').val(response.creditos);
+
                                     $('#modalEditarAsignatura').modal('show');
                                 } else {
-                                    alert('No se encontró la asignatura.');
+                                    alert('No se pudo obtener los detalles de la asignatura.');
                                 }
                             },
                             error: function(xhr, status, error) {
                                 console.error(error);
-                                alert('Error al obtener datos de la asignatura.');
+                                alert('Error al obtener detalles de la asignatura.');
                             }
                         });
                     });
 
                     $('#formEditarAsignatura').submit(function(event) {
                         event.preventDefault();
+
                         var idAsignatura = $('#idAsignatura').val();
-                        var nombre = $('#nombreEditarAsignatura').val();
-                        var creditos = $('#creditosEditarAsignatura').val();
+                        var nombreAsignatura = $('#nombreEditarAsignatura').val();
+                        var creditos = $('#creditosEditar').val();
 
                         $.ajax({
-                            url: 'http://localhost/Trabajo/proyectofinal/controllers/Asignaturas.controllers.php?op=actualizar',
+                            url: 'http://localhost/Proyectofinal/controllers/Asignaturas.controllers.php?op=actualizar',
                             type: 'POST',
                             data: {
-                                id: idAsignatura,
-                                nombre: nombre,
+                                id_asignatura: idAsignatura,
+                                nombre_asignatura: nombreAsignatura,
                                 creditos: creditos
                             },
                             dataType: 'json',
                             success: function(response) {
-                                if (response === "ok") {
+                                if (response) {
                                     $('#modalEditarAsignatura').modal('hide');
                                     cargarAsignaturas();
+                                    $('#formEditarAsignatura')[0].reset();
                                 } else {
                                     alert('Error al actualizar asignatura: ' + response);
                                 }
@@ -258,32 +261,35 @@
 
                         Swal.fire({
                             title: '¿Estás seguro?',
-                            text: 'La asignatura será eliminada permanentemente.',
+                            text: "¡No podrás revertir esto!",
                             icon: 'warning',
                             showCancelButton: true,
                             confirmButtonColor: '#3085d6',
                             cancelButtonColor: '#d33',
-                            confirmButtonText: 'Sí, eliminar',
-                            cancelButtonText: 'Cancelar'
+                            confirmButtonText: 'Sí, eliminarla!'
                         }).then((result) => {
                             if (result.isConfirmed) {
                                 $.ajax({
-                                    url: 'http://localhost/Trabajo/proyectofinal/controllers/Asignaturas.controllers.php?op=eliminar',
+                                    url: 'http://localhost/Proyectofinal/controllers/Asignaturas.controllers.php?op=eliminar',
                                     type: 'POST',
                                     data: {
-                                        id: idAsignatura
+                                        id_asignatura: idAsignatura
                                     },
                                     dataType: 'json',
                                     success: function(response) {
                                         if (response === "ok") {
                                             cargarAsignaturas();
                                             Swal.fire(
-                                                '¡Eliminado!',
+                                                '¡Eliminada!',
                                                 'La asignatura ha sido eliminada.',
                                                 'success'
                                             );
                                         } else {
-                                            alert('Error al eliminar asignatura: ' + response);
+                                            Swal.fire(
+                                                'Error!',
+                                                'No se pudo eliminar la asignatura.',
+                                                'error'
+                                            );
                                         }
                                     },
                                     error: function(xhr, status, error) {
@@ -298,7 +304,6 @@
                 });
             </script>
         </div>
-        
     </div>
 </body>
 </html>

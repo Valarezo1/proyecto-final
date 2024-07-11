@@ -1,57 +1,86 @@
 <?php
-require_once("../config/cors.php");
-require_once("../models/Profesores.models.php");
-error_reporting(0);
+require_once('../models/Profesores.models.php'); // Suponiendo que este archivo define Profesor_Model
+$profesor = new Clase_Profesor(); // Instancia tu modelo Profesor
 
-$Profesores = new Profesores;
-switch ($_GET["op"]) {
-    case 'todos':
-        $data = array();
-        $datos = $Profesores->todos();
-        while ($row = mysqli_fetch_assoc($datos)) {
-            $sub_array = array();
-            $sub_array[] = $row["id_profesor"];
-            $sub_array[] = $row["nombre"];
-            $sub_array[] = $row["apellido"];
-            $sub_array[] = $row["especialidad"];
-            $sub_array[] = '<button type="button" onClick="editar('.$row["id_profesor"].')" class="btn btn-outline-success">Editar</button>  <button type="button" onClick="eliminar('.$row["id_profesor"].')" class="btn btn-outline-danger">Eliminar</button>';
-            $data[] = $sub_array;
-        }
-        $results = array(
-            "sEcho" => 1,
-            "iTotalRecords" => count($data),
-            "iTotalDisplayRecords" => count($data),
-            "aaData" => $data
-        );
-        echo json_encode($results);
-        break;
-
-    case 'uno':
-        $id_profesor = $_POST["id_profesor"];
-        $datos = $Profesores->uno($id_profesor);
-        echo json_encode($datos);
-        break;
-
-    case 'insertar':
-        $nombre = $_POST["nombre"];
-        $apellido = $_POST["apellido"];
-        $especialidad = $_POST["especialidad"];
-        $datos = $Profesores->Insertar($nombre, $apellido, $especialidad);
-        echo json_encode($datos);
-        break;
-
-    case 'actualizar':
-        $id_profesor = $_POST["id_profesor"];
-        $nombre = $_POST["nombre"];
-        $apellido = $_POST["apellido"];
-        $especialidad = $_POST["especialidad"];
-        $datos = $Profesores->Actualizar($id_profesor, $nombre, $apellido, $especialidad);
-        echo json_encode($datos);
-        break;
-
-    case 'eliminar':
-        $id_profesor = $_POST["id_profesor"];
-        $datos = $Profesores->Eliminar($id_profesor);
-        echo json_encode($datos);
-        break;
+if (isset($_GET['op'])) {
+    switch ($_GET['op']) {
+        case "todos":
+            $datos = $profesor->todos();
+            if ($datos !== false) {
+                echo json_encode($datos);
+            } else {
+                echo json_encode("No se encontraron profesores.");
+            }
+            break;
+        case "insertar":
+            if (isset($_POST["nombre"], $_POST["apellido"], $_POST["especialidad"])) {
+                $nombre = $_POST["nombre"];
+                $apellido = $_POST["apellido"];
+                $especialidad = $_POST["especialidad"];
+                $resultado = $profesor->insertar($nombre, $apellido, $especialidad);
+                if ($resultado === "ok") {
+                    echo json_encode("ok");
+                } else {
+                    echo json_encode("Error al insertar el profesor: " . $resultado);
+                }
+            } else {
+                echo json_encode("Faltan parámetros para insertar el profesor.");
+            }
+            break;
+        case "actualizar":
+            if (isset($_POST["id_profesor"], $_POST["nombre"], $_POST["apellido"], $_POST["especialidad"])) {
+                $id_profesor = $_POST["id_profesor"];
+                $nombre = $_POST["nombre"];
+                $apellido = $_POST["apellido"];
+                $especialidad = $_POST["especialidad"];
+                $resultado = $profesor->actualizar($id_profesor, $nombre, $apellido, $especialidad);
+                if ($resultado === "ok") {
+                    // Obtener los datos actualizados del profesor
+                    $profesorActualizado = $profesor->obtenerPorId($id_profesor);
+                    if ($profesorActualizado) {
+                        echo json_encode($profesorActualizado);
+                    } else {
+                        echo json_encode("Error al obtener el profesor actualizado.");
+                    }
+                } else {
+                    echo json_encode("Error al actualizar el profesor: " . $resultado);
+                }
+            } else {
+                echo json_encode("Faltan parámetros para actualizar el profesor.");
+            }
+            break;
+        case "eliminar":
+            if (isset($_POST["id_profesor"])) {
+                $id_profesor = $_POST["id_profesor"];
+                $resultado = $profesor->eliminar($id_profesor);
+                if ($resultado === "ok") {
+                    echo json_encode("ok");
+                } else {
+                    echo json_encode("Error al eliminar el profesor: " . $resultado);
+                }
+            } else {
+                echo json_encode("Falta el parámetro ID para eliminar el profesor.");
+            }
+            break;
+        case "detalle":
+            if (isset($_GET["id_profesor"])) {
+                $id_profesor = $_GET["id_profesor"];
+                $profesorDetalle = $profesor->obtenerPorId($id_profesor);
+                if ($profesorDetalle) {
+                    echo json_encode($profesorDetalle);
+                } else {
+                    echo json_encode("No se encontró el profesor.");
+                }
+            } else {
+                echo json_encode("Falta el parámetro ID para obtener el detalle del profesor.");
+            }
+            break;
+        default:
+            echo json_encode("Operación no válida.");
+            break;
+    }
+} else {
+    echo json_encode("No se especificó la operación.");
 }
+
+?>
