@@ -187,7 +187,7 @@
                         var especialidad = $('#especialidadProfesor').val();
 
                         $.ajax({
-                            url: 'http://localhost/Proyectofinal/controllers/profesores.controllers.php?op=insertar',
+                            url: 'http://localhost/Proyectofinal/controllers/Profesores.controller.php?op=insertar',
                             type: 'POST',
                             data: {
                                 nombre: nombre,
@@ -196,7 +196,7 @@
                             },
                             dataType: 'json',
                             success: function(response) {
-                                if (response === "ok") {
+                                if (response) {
                                     $('#modalProfesor').modal('hide');
                                     cargarProfesores();
                                     $('#formNuevoProfesor')[0].reset();
@@ -215,7 +215,7 @@
                         var idProfesor = $(this).data('id');
 
                         $.ajax({
-                            url: 'http://localhost/Proyectofinal/controllers/profesores.controllers.php?op=detalle&id_profesor=' + idProfesor,
+                            url: 'http://localhost/Proyectofinal/controllers/Profesores.controller.php?op=detalle&id_profesor=' + idProfesor,
                             type: 'GET',
                             dataType: 'json',
                             success: function(response) {
@@ -246,7 +246,7 @@
                         var especialidad = $('#especialidadEditarProfesor').val();
 
                         $.ajax({
-                            url: 'http://localhost/Proyectofinal/controllers/profesores.controllers.php?op=actualizar',
+                            url: 'http://localhost/Proyectofinal/controllers/Profesores.controller.php?op=actualizar',
                             type: 'POST',
                             data: {
                                 id_profesor: idProfesor,
@@ -285,7 +285,7 @@
                         }).then((result) => {
                             if (result.isConfirmed) {
                                 $.ajax({
-                                    url: 'http://localhost/Proyectofinal/controllers/profesores.controllers.php?op=eliminar',
+                                    url: 'http://localhost/Proyectofinal/controllers/Profesores.controller.php?op=eliminar',
                                     type: 'POST',
                                     data: {
                                         id_profesor: idProfesor
